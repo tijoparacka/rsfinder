@@ -29,6 +29,7 @@ public class Regionfinder {
                 usage(args);
                 TableName tablename = TableName.valueOf(args[0]);
                 String rowkey = args[1];
+                int bucketNum = Integer.parseInt(args[2]);
                 byte[] keyInBytes = Bytes.toBytes(rowkey);
                 Configuration conf = HBaseConfiguration.create();
                 Connection connection = ConnectionFactory.createConnection(conf);
