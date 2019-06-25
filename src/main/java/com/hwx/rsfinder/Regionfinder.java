@@ -35,7 +35,7 @@ public class Regionfinder {
                 Connection connection = ConnectionFactory.createConnection(conf);
                 Table table = connection.getTable(tablename);
                 RegionLocator regionLocater = connection.getRegionLocator(tablename);
-                byte[] saltedKey = SaltingUtil.getSaltedKey(new ImmutableBytesWritable(keyInBytes),3);
+                byte[] saltedKey = SaltingUtil.getSaltedKey(new ImmutableBytesWritable(keyInBytes),bucketNum);
                 HRegionLocation regionLocation = regionLocater.getRegionLocation(saltedKey);
                 Result result = table.get(new Get(keyInBytes));
                 if(result.isEmpty()){
