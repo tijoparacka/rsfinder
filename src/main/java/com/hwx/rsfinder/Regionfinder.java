@@ -30,14 +30,24 @@ public class Regionfinder {
                 TableName tablename = TableName.valueOf(args[0]);
                 String rowkey = args[1];
                 int bucketNum = Integer.parseInt(args[2]);
-                byte[] keyInBytes = Bytes.toBytes(rowkey);
+
+
                 Configuration conf = HBaseConfiguration.create();
                 Connection connection = ConnectionFactory.createConnection(conf);
                 Table table = connection.getTable(tablename);
                 RegionLocator regionLocater = connection.getRegionLocator(tablename);
-                byte[] saltedKey = SaltingUtil.getSaltedKey(new ImmutableBytesWritable(keyInBytes),bucketNum);
+
+                // For Salted tables first byte of key should be left empty as a place holder for the salting byte.
+                byte[] rowKeyBytes = Bytes.toBytes(rowkey);
+                byte[] updatedRowKeyBytes = new byte[rowKeyBytes.length + 1];
+                System.arraycopy(rowKeyBytes, 0, updatedRowKeyBytes, 1, rowKeyBytes.length);
+
+                byte[] saltedKey = SaltingUtil.getSaltedKey(new ImmutableBytesWritable(updatedRowKeyBytes),bucketNum);
                 HRegionLocation regionLocation = regionLocater.getRegionLocation(saltedKey);
-                Result result = table.get(new Get(keyInBytes));
+
+                String saltedKeyString = Bytes.toStringBinary(saltedKey);
+
+                Result result = table.get(new Get(saltedKey));
                 if(result.isEmpty()){
                         System.out.println("Rowkey "+rowkey+" is not exist in any region. It will be placed in region : "+regionLocation.getRegionInfo().getRegionNameAsString());
                 }else{
